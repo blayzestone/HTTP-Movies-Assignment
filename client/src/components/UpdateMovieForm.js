@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useHistory } from "react-router-dom";
 import axios from "axios";
 import { useForm } from "../hooks/useForm";
 
@@ -15,6 +15,7 @@ const UpdateMovieForm = (props) => {
     initialFormValues
   );
   const { id } = useParams();
+  const { push } = useHistory();
 
   useEffect(() => {
     axios
@@ -25,14 +26,23 @@ const UpdateMovieForm = (props) => {
       .catch((err) => console.log(err.response));
   }, []);
 
-  const clearForm = (evt) => {
+  const submitEdit = (evt) => {
     evt.preventDefault();
-    updateFormValues(initialFormValues);
+
+    axios
+      .put(`http://localhost:5000/api/movies/${id}`, formValues)
+      .then((res) => {
+        updateFormValues(initialFormValues);
+        console.log(res.data);
+        props.setFetching(true);
+        push("/");
+      })
+      .catch((err) => console.log(err));
   };
 
   return (
     <form
-      onSubmit={clearForm}
+      onSubmit={submitEdit}
       style={{
         width: "60%",
         margin: "0 auto",
